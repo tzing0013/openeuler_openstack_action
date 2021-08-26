@@ -19,6 +19,7 @@ jobs:
         run: |
           sudo apt install python3-pip
           pip install requests
+          pip install yaml
       - name: Run the script
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
