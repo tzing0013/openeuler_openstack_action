@@ -1,4 +1,4 @@
-name: Sync Image
+name: Check OBS Build
 
 on:
   schedule:
@@ -13,9 +13,11 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      - name: Fetch image
+      - name: Install python3
+        uses: actions/setup-python@v2
+      - name: Run the script
         run: |
-          echo "hello"
-      - name: Sync image
-        run: |
-          echo "hello"
+          export OBS_USER_NAME=${{ secrets.obs_user_name }}
+          export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
+          export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
+          python3 ./package_status.py
