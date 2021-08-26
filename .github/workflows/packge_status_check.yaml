@@ -1,0 +1,21 @@
+name: Sync Image
+
+on:
+  schedule:
+    - cron: '0 17 * * *'
+  issue_comment:
+    types: [created]
+
+jobs:
+  package_status_check:
+    name: Check package build status on OBS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Fetch image
+        run: |
+          echo "hello"
+      - name: Sync image
+        run: |
+          echo "hello"
