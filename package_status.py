@@ -59,7 +59,7 @@ def create_issue(result_str):
     body = {
         "access_token": GITEE_USER_TOKEN,
         "repo":"openstack",
-        "title":"OBS Build Failed",
+        "title":"[CI] OBS Build Failed",
         "body":result_str,
         "assignee":"huangtianhua",
         "collaborators":"xiyuanwang"
