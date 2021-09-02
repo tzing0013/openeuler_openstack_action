@@ -17,7 +17,7 @@ BRANCHS = [
 
 
 OBS_PACKAGE_BUILD_RESULT_URL = 'https://build.openeuler.org/build/%(branch)s/_result'
-GITEE_ISSUE_LIST_URL = 'https://gitee.com/api/v5/repos/openeuler/openstack/issues?state=open&labels=kind/obs-failed&sort=created&direction=desc&page=1&per_page=20''
+GITEE_ISSUE_LIST_URL = 'https://gitee.com/api/v5/repos/openeuler/openstack/issues?state=open&labels=kind/obs-failed&sort=created&direction=desc&page=1&per_page=20'
 GITEE_ISSUE_CREATE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues'
 GITEE_ISSUE_UPDATE_URL = 'https://gitee.com/api/v5/repos/{owner}/issues/%s'
 SIG_PROJECT_URL = 'https://gitee.com/openeuler/community/raw/master/sig/sig-openstack/sig-info.yaml'
