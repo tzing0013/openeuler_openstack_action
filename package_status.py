@@ -111,8 +111,8 @@ def create_or_update_issue(result_str):
 def format_content(input_dict):
     output = ""
     today = datetime.datetime.now()
+    output += '## check date: %s-%s-%s\n' % (today.year, today.month, today.day)
     for branch, project_info in input_dict.items():
-        output += '## check date: %s-%s-%s\n' % (today.year, today.month, today.day)
         output += '## %s\n' % branch
         output += '    \n'
         for project_name, status in project_info.items():
