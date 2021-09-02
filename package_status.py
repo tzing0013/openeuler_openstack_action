@@ -64,7 +64,7 @@ def get_obs_issue():
     issue_list = requests.get(GITEE_ISSUE_LIST_URL, headers=headers).content.decode()
     issue_list = json.loads(issue_list)
     if issue_list:
-        return issue_list[0]['id']
+        return issue_list[0]['number']
     else:
         return None
 
