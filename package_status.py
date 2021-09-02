@@ -1,5 +1,8 @@
 import os
+import ast
+import datetime
 import re
+
 import requests
 import yaml
 
@@ -14,7 +17,9 @@ BRANCHS = [
 
 
 OBS_PACKAGE_BUILD_RESULT_URL = 'https://build.openeuler.org/build/%(branch)s/_result'
-GITEE_ISSUE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues'
+GITEE_ISSUE_LIST_URL = 'https://gitee.com/api/v5/repos/openeuler/openstack/issues?state=open&labels=kind/obs-failed&sort=created&direction=desc&page=1&per_page=20''
+GITEE_ISSUE_CREATE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues'
+GITEE_ISSUE_UPDATE_URL = 'https://gitee.com/api/v5/repos/{owner}/issues/%s'
 SIG_PROJECT_URL = 'https://gitee.com/openeuler/community/raw/master/sig/sig-openstack/sig-info.yaml'
 OBS_USER_NAME = os.environ.get('OBS_USER_NAME')
 OBS_USER_PASSWORD = os.environ.get('OBS_USER_PASSWORD')
@@ -52,7 +57,30 @@ def check_status():
     return result
 
 
-def create_issue(result_str):
+def get_obs_issue():
+    headers = {
+        'Content-Type': 'application/json;charset=UTF-8',
+    }
+    issue_list = requests.get(GITEE_ISSUE_LIST_URL, headers=headers).content.decode()
+    issue_list = ast.literal_eval(issue_list)
+    if issue_list:
+        return issue_list[0]['id']
+    else:
+        return None
+
+
+def update_issue(issue_number, result_str):
+    headers = {
+        'Content-Type': 'application/json;charset=UTF-8',
+    }
+    body = {
+        "access_token": GITEE_USER_TOKEN,
+        "body":result_str,
+    }
+    requests.patch(GITEE_ISSUE_UPDATE_URL % issue_number, headers=headers, params=body)
+
+
+def creat_issue(result_str):
     headers = {
         'Content-Type': 'application/json;charset=UTF-8',
     }
@@ -61,17 +89,28 @@ def create_issue(result_str):
         "repo":"openstack",
         "title":"[CI] OBS Build Failed",
         "body":result_str,
+        "labels":"kind/obs-failed",
         "assignee":"huangtianhua",
         "collaborators":"xiyuanwang"
     }
-    response = requests.post(GITEE_ISSUE_URL, headers=headers, params=body)
+    response = requests.post(GITEE_ISSUE_CREATE_URL, headers=headers, params=body)
     if response.status_code != 201:
         raise Exception("Failed create gitee issue")
 
 
+def create_or_update_issue(result_str):
+    issue_number = get_obs_issue()
+    if issue_number:
+        update_issue(issue_number, result_str)
+    else:
+        create_issue(result_str)
+
+
 def format_content(input_dict):
     output = ""
+    today = datetime.datetime.now()
     for branch, project_info in input_dict.items():
+        output += '## check date: %s-%s-%s\n' % (today.year, today.month, today.day)
         output += '## %s\n' % branch
         output += '    \n'
         for project_name, status in project_info.items():
@@ -83,7 +122,7 @@ def main():
     result = check_status()
     if result:
         result_str = format_content(result)
-        create_issue(result_str)
+        create_or_update_issue(result_str)
 
 
 main()
