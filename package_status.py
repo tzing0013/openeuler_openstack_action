@@ -112,19 +112,22 @@ def format_content(input_dict):
     output = ""
     today = datetime.datetime.now()
     output += '## check date: %s-%s-%s\n' % (today.year, today.month, today.day)
-    for branch, project_info in input_dict.items():
-        output += '## %s\n' % branch
-        output += '    \n'
-        for project_name, status in project_info.items():
-            output += '    %s: %s\n' % (project_name, status)
+    if input_dict:
+        for branch, project_info in input_dict.items():
+            output += '## %s\n' % branch
+            output += '    \n'
+            for project_name, status in project_info.items():
+                output += '    %s: %s\n' % (project_name, status)
+    else:
+        output += 'All package build success.'
+
     return output
 
 
 def main():
     result = check_status()
-    if result:
-        result_str = format_content(result)
-        create_or_update_issue(result_str)
+    result_str = format_content(result)
+    create_or_update_issue(result_str)
 
 
 main()
