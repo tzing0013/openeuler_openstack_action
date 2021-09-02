@@ -1,6 +1,6 @@
-import os
-import ast
 import datetime
+import json
+import os
 import re
 
 import requests
@@ -62,7 +62,7 @@ def get_obs_issue():
         'Content-Type': 'application/json;charset=UTF-8',
     }
     issue_list = requests.get(GITEE_ISSUE_LIST_URL, headers=headers).content.decode()
-    issue_list = ast.literal_eval(issue_list)
+    issue_list = json.loads(issue_list)
     if issue_list:
         return issue_list[0]['id']
     else:
