@@ -8,11 +8,15 @@ import yaml
 
 
 BRANCHS = [
+    'openEuler:20.03:LTS:Next:oepkg:openstack:queens',
+    'openEuler:20.03:LTS:Next:oepkg:openstack:rocky',
+    'openEuler:20.03:LTS:Next:oepkg:openstack:common',
     'openEuler:20.03:LTS:SP2:oepkg:openstack:queens',
     'openEuler:20.03:LTS:SP2:oepkg:openstack:rocky',
     'openEuler:20.03:LTS:SP2:oepkg:openstack:common',
     'openEuler:21.03:Epol',
     'openEuler:21.09:Epol',
+    'openEuler:Epol',
 ]
 
 
