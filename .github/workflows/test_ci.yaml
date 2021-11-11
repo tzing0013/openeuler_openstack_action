@@ -1,0 +1,26 @@
+name: Check OBS Build
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  package_status_check:
+    name: Check package build status on OBS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install python3
+        uses: actions/setup-python@v2
+      - name: Install requirement
+        run: |
+          sudo apt install python3-pip
+          pip install requests
+          pip install pyyaml
+      - name: Run the script
+        run: |
+          export OBS_USER_NAME=${{ secrets.obs_user_name }}
+          export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
+          export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
+          python3 ./test.py
