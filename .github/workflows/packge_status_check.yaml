@@ -3,8 +3,6 @@ name: Check OBS Build
 on:
   schedule:
     - cron: '0 0 * * 1-5'
-  issue_comment:
-    types: [created]
 
 jobs:
   package_status_check:
