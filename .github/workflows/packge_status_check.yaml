@@ -18,9 +18,37 @@ jobs:
           sudo apt install python3-pip
           pip install requests
           pip install pyyaml
+          pip install xmltodict
       - name: Run the script
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
           python3 ./package_status.py
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3.6.0
+        with:
+          # Required mail server address:
+          server_address: smtp.gmail.com
+          # Required mail server port:
+          server_port: 465
+          # Optional (recommended): mail server username:
+          username: ${{secrets.MAIL_USERNAME}}
+          # Optional (recommended) mail server password:
+          password: ${{secrets.MAIL_PASSWORD}}
+          # Required mail subject:
+          subject: OpenStack OBS Daily Check
+          # Required recipients' addresses:
+          to: wangxiyuan@huawei.com
+          # Required sender full name (address can be skipped):
+          from: OpenStack CI Boot # <user@example.com>
+          # Optional whether this connection use TLS (default is true if server_port is 465)
+          secure: true
+          # Optional plain body:
+          body: OpenStack OBS每日构建检查
+          # Optional unsigned/invalid certificates allowance:
+          ignore_cert: true
+          # Optional attachments:
+          attachments: result.md
+          # Optional priority: 'high', 'normal' (default) or 'low'
+          priority: normal
