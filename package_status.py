@@ -1,9 +1,9 @@
 import datetime
 import json
 import os
-import re
 
 import requests
+import xmltodict
 import yaml
 
 
@@ -14,6 +14,8 @@ BRANCHS = [
     'openEuler:20.03:LTS:SP2:oepkg:openstack:queens',
     'openEuler:20.03:LTS:SP2:oepkg:openstack:rocky',
     'openEuler:20.03:LTS:SP2:oepkg:openstack:common',
+    'openEuler:20.03:LTS:Next:Epol',
+    'openEuler:20.03:LTS:SP3:Epol',
     'openEuler:21.03:Epol',
     'openEuler:21.09:Epol',
     'openEuler:Epol',
@@ -32,30 +34,41 @@ GITEE_USER_TOKEN = os.environ.get('GITEE_USER_TOKEN')
 
 def get_openstack_sig_project():
     project_list = []
-    sig_dict = yaml.safe_load(requests.get(SIG_PROJECT_URL).content.decode())
+    sig_dict = yaml.safe_load(requests.get(SIG_PROJECT_URL, verify=False).content.decode())
     for item in sig_dict['repositories']:
         project_list.append(item['repo'].split('/')[-1])
     return project_list
 
 
+# The result dict format will be like:
+# {
+#     'branch_name': {
+#         'package_name': {
+#             'x86_64': 'fail reason',
+#             'aarch64': 'fail reason'
+#         }
+#     }
+# }
 def check_status():
     white_list = get_openstack_sig_project()
     branch_session = requests.session()
-    branch_session.auth = (OBS_USER_NAME, OBS_USER_PASSWORD)
+    #branch_session.auth = (OBS_USER_NAME, OBS_USER_PASSWORD)
+    branch_session.auth = ('wangxiyuan', 'jhelfwang2933')
     result = {}
     for branch in BRANCHS:
         sub_res = {}
-        res = branch_session.get(OBS_PACKAGE_BUILD_RESULT_URL % {'branch': branch})
-        res_content = res.content.decode().split('\n')
-        for project_line in res_content:
-            project_name = None
-            if re.search(r"(?<=package=\")[a-zA-Z0-9-_\.]*", project_line):
-                project_name = re.search(r"(?<=package=\")[a-zA-Z0-9-_\.]*", project_line).group()
-            is_broken = re.search(r'(code="unresolvable")|(code="failed")', project_line)
-            if project_name and project_name in white_list and is_broken:
-                status = re.search(r"(?<=code=\")(unresolvable)|(failed)", project_line).group()
-                if not sub_res.get(project_name):
-                    sub_res[project_name] = status
+        res = branch_session.get(OBS_PACKAGE_BUILD_RESULT_URL % {'branch': branch}, verify=False)
+        obs_result = xmltodict.parse(res.content.decode())['resultlist']['result']
+        for each_arch in obs_result:
+            arch = each_arch['@arch']
+            arch_result = each_arch['status']
+            for package in arch_result:
+                package_name = package['@package']
+                package_status = package['@code']
+                if package_name in white_list and package_status in ['unresolvable', 'failed']:
+                    if not sub_res.get(package_name):
+                        sub_res[package_name] = {}
+                    sub_res[package_name][arch] = package.get('details', 'build failed')
         if sub_res:
             result[branch] = sub_res
     return result
@@ -121,7 +134,11 @@ def format_content(input_dict):
             output += '## %s\n' % branch
             output += '    \n'
             for project_name, status in project_info.items():
-                output += '    %s: %s\n' % (project_name, status)
+                output += '    %s:\n' % project_name
+                if status.get('x86_64'):
+                    output += '        x86_64: %s\n' % status['x86_64']
+                if status.get('aarch64'):
+                    output += '        aarch64: %s\n' % status['aarch64']
     else:
         output += 'All package build success.'
 
@@ -131,7 +148,9 @@ def format_content(input_dict):
 def main():
     result = check_status()
     result_str = format_content(result)
-    create_or_update_issue(result_str)
-
+    # try:
+    #     create_or_update_issue(result_str)
+    with open('./result.md', 'w') as output:
+        output.write(result_str)
 
 main()
