@@ -39,7 +39,7 @@ jobs:
           # Required mail subject:
           subject: OpenStack OBS Daily Check
           # Required recipients' addresses:
-          to: wangxiyuan@huawei.com
+          to: wangxiyuan@huawei.com,huangtianhua@huawei.com,lijiawei19@huawei.com
           # Required sender full name (address can be skipped):
           from: OpenStack CI Boot # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
