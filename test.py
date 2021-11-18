@@ -64,7 +64,7 @@ def check_status():
             for package in arch_result:
                 package_name = package['@package']
                 package_status = package['@code']
-                if package_name in white_list and package_status in ['unresolvable', 'failed']:
+                if ('oepkg' in branch or package_name in white_list) and package_status in ['unresolvable', 'failed']:
                     if not sub_res.get(package_name):
                         sub_res[package_name] = {}
                     sub_res[package_name][arch] = package.get('details', 'build failed')
