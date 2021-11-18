@@ -18,12 +18,13 @@ jobs:
           sudo apt install python3-pip
           pip install requests
           pip install pyyaml
+          pip install xmltodict
       - name: Run the script
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
-          python3 ./package_status.py
+          python3 ./test.py
       - name: Send email
         uses: dawidd6/action-send-mail@v3.6.0
         with:
