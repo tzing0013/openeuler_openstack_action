@@ -1,156 +1,53 @@
-import datetime
-import json
-import os
+name: Check OBS Build
 
-import requests
-import xmltodict
-import yaml
+on:
+  issue_comment:
+    types: [created]
 
-
-BRANCHS = [
-    'openEuler:20.03:LTS:Next:oepkg:openstack:queens',
-    'openEuler:20.03:LTS:Next:oepkg:openstack:rocky',
-    'openEuler:20.03:LTS:Next:oepkg:openstack:common',
-    'openEuler:20.03:LTS:SP2:oepkg:openstack:queens',
-    'openEuler:20.03:LTS:SP2:oepkg:openstack:rocky',
-    'openEuler:20.03:LTS:SP2:oepkg:openstack:common',
-    'openEuler:20.03:LTS:Next:Epol',
-    'openEuler:20.03:LTS:SP3:Epol',
-    'openEuler:21.03:Epol',
-    'openEuler:21.09:Epol',
-    'openEuler:Epol',
-]
-
-
-OBS_PACKAGE_BUILD_RESULT_URL = 'https://build.openeuler.org/build/%(branch)s/_result'
-GITEE_ISSUE_LIST_URL = 'https://gitee.com/api/v5/repos/openeuler/openstack/issues?state=open&labels=kind/obs-failed&sort=created&direction=desc&page=1&per_page=20'
-GITEE_ISSUE_CREATE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues'
-GITEE_ISSUE_UPDATE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues/%s'
-SIG_PROJECT_URL = 'https://gitee.com/openeuler/community/raw/master/sig/sig-openstack/sig-info.yaml'
-OBS_USER_NAME = os.environ.get('OBS_USER_NAME')
-OBS_USER_PASSWORD = os.environ.get('OBS_USER_PASSWORD')
-GITEE_USER_TOKEN = os.environ.get('GITEE_USER_TOKEN')
-
-
-def get_openstack_sig_project():
-    project_list = []
-    sig_dict = yaml.safe_load(requests.get(SIG_PROJECT_URL, verify=False).content.decode())
-    for item in sig_dict['repositories']:
-        project_list.append(item['repo'].split('/')[-1])
-    return project_list
-
-
-# The result dict format will be like:
-# {
-#     'branch_name': {
-#         'package_name': {
-#             'x86_64': 'fail reason',
-#             'aarch64': 'fail reason'
-#         }
-#     }
-# }
-def check_status():
-    white_list = get_openstack_sig_project()
-    branch_session = requests.session()
-    #branch_session.auth = (OBS_USER_NAME, OBS_USER_PASSWORD)
-    branch_session.auth = ('wangxiyuan', 'jhelfwang2933')
-    result = {}
-    for branch in BRANCHS:
-        sub_res = {}
-        res = branch_session.get(OBS_PACKAGE_BUILD_RESULT_URL % {'branch': branch}, verify=False)
-        obs_result = xmltodict.parse(res.content.decode())['resultlist']['result']
-        for each_arch in obs_result:
-            arch = each_arch['@arch']
-            arch_result = each_arch['status']
-            for package in arch_result:
-                package_name = package['@package']
-                package_status = package['@code']
-                if package_name in white_list and package_status in ['unresolvable', 'failed']:
-                    if not sub_res.get(package_name):
-                        sub_res[package_name] = {}
-                    sub_res[package_name][arch] = package.get('details', 'build failed')
-        if sub_res:
-            result[branch] = sub_res
-    return result
-
-
-def get_obs_issue():
-    headers = {
-        'Content-Type': 'application/json;charset=UTF-8',
-    }
-    issue_list = requests.get(GITEE_ISSUE_LIST_URL, headers=headers).content.decode()
-    issue_list = json.loads(issue_list)
-    if issue_list:
-        return issue_list[0]['number']
-    else:
-        return None
-
-
-def update_issue(issue_number, result_str):
-    headers = {
-        'Content-Type': 'application/json;charset=UTF-8',
-    }
-    body = {
-        "access_token": GITEE_USER_TOKEN,
-        "repo": "openstack",
-        "body": result_str,
-    }
-    response = requests.patch(GITEE_ISSUE_UPDATE_URL % issue_number, headers=headers, params=body)
-    if response.status_code != 200:
-        raise Exception("Failed update gitee issue")
-
-def create_issue(result_str):
-    headers = {
-        'Content-Type': 'application/json;charset=UTF-8',
-    }
-    body = {
-        "access_token": GITEE_USER_TOKEN,
-        "repo": "openstack",
-        "title": "[CI] OBS Build Failed",
-        "body": result_str,
-        "labels": "kind/obs-failed",
-        "assignee": "huangtianhua",
-        "collaborators": "xiyuanwang"
-    }
-    response = requests.post(GITEE_ISSUE_CREATE_URL, headers=headers, params=body)
-    if response.status_code != 201:
-        raise Exception("Failed create gitee issue")
-
-
-def create_or_update_issue(result_str):
-    issue_number = get_obs_issue()
-    if issue_number:
-        update_issue(issue_number, result_str)
-    else:
-        create_issue(result_str)
-
-
-def format_content(input_dict):
-    output = ""
-    today = datetime.datetime.now()
-    output += '## check date: %s-%s-%s\n' % (today.year, today.month, today.day)
-    if input_dict:
-        for branch, project_info in input_dict.items():
-            output += '## %s\n' % branch
-            output += '    \n'
-            for project_name, status in project_info.items():
-                output += '    %s:\n' % project_name
-                if status.get('x86_64'):
-                    output += '        x86_64: %s\n' % status['x86_64']
-                if status.get('aarch64'):
-                    output += '        aarch64: %s\n' % status['aarch64']
-    else:
-        output += 'All package build success.'
-
-    return output
-
-
-def main():
-    result = check_status()
-    result_str = format_content(result)
-    # try:
-    #     create_or_update_issue(result_str)
-    with open('./result.md', 'w') as output:
-        output.write(result_str)
-
-main()
+jobs:
+  package_status_check:
+    name: Check package build status on OBS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install python3
+        uses: actions/setup-python@v2
+      - name: Install requirement
+        run: |
+          sudo apt install python3-pip
+          pip install requests
+          pip install pyyaml
+      - name: Run the script
+        run: |
+          export OBS_USER_NAME=${{ secrets.obs_user_name }}
+          export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
+          export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
+          python3 ./package_status.py
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3.6.0
+        with:
+          # Required mail server address:
+          server_address: smtp.gmail.com
+          # Required mail server port:
+          server_port: 465
+          # Optional (recommended): mail server username:
+          username: ${{secrets.MAIL_USERNAME}}
+          # Optional (recommended) mail server password:
+          password: ${{secrets.MAIL_PASSWORD}}
+          # Required mail subject:
+          subject: OpenStack OBS Daily Check
+          # Required recipients' addresses:
+          to: wangxiyuan@huawei.com
+          # Required sender full name (address can be skipped):
+          from: OpenStack CI Boot # <user@example.com>
+          # Optional whether this connection use TLS (default is true if server_port is 465)
+          secure: true
+          # Optional plain body:
+          body: OpenStack OBS每日构建检查
+          # Optional unsigned/invalid certificates allowance:
+          ignore_cert: true
+          # Optional attachments:
+          attachments: result.md
+          # Optional priority: 'high', 'normal' (default) or 'low'
+          priority: normal
