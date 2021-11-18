@@ -52,8 +52,7 @@ def get_openstack_sig_project():
 def check_status():
     white_list = get_openstack_sig_project()
     branch_session = requests.session()
-    #branch_session.auth = (OBS_USER_NAME, OBS_USER_PASSWORD)
-    branch_session.auth = ('wangxiyuan', 'jhelfwang2933')
+    branch_session.auth = (OBS_USER_NAME, OBS_USER_PASSWORD)
     result = {}
     for branch in BRANCHS:
         sub_res = {}
