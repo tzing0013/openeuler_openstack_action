@@ -19,6 +19,7 @@ jobs:
           pip install requests
           pip install pyyaml
           pip install xmltodict
+          pip install markdown
       - name: Run the script
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
