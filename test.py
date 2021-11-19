@@ -73,6 +73,8 @@ def check_status():
                     sub_res[project_key][arch] = package.get('details', 'build failed')
         if sub_res:
             result[branch] = sub_res
+        else:
+            result[bracnh] = 'Success'
     return result
 
 
@@ -135,6 +137,9 @@ def format_content(input_dict):
         for branch, project_info in input_dict.items():
             output += '## %s\n' % branch
             output += '    \n'
+            if isinstance(project_info, str):
+                output += '%s\n' % project_info
+                continue
             for project_name, status in project_info.items():
                 output += '    %s:\n' % project_name
                 if status.get('x86_64'):
