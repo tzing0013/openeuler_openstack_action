@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 
-import markdown
 import requests
 import xmltodict
 import yaml
@@ -24,6 +23,8 @@ BRANCHS = [
 
 
 OBS_PACKAGE_BUILD_RESULT_URL = 'https://build.openeuler.org/build/%(branch)s/_result'
+OBS_PROJECT_URL = 'https://build.openeuler.org/package/show/%(branch)s/%(project)s'
+PROJECT_MARKDOWN_FORMAT = '[%(project)s](%(url)s)'
 GITEE_ISSUE_LIST_URL = 'https://gitee.com/api/v5/repos/openeuler/openstack/issues?state=open&labels=kind/obs-failed&sort=created&direction=desc&page=1&per_page=20'
 GITEE_ISSUE_CREATE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues'
 GITEE_ISSUE_UPDATE_URL = 'https://gitee.com/api/v5/repos/openeuler/issues/%s'
@@ -48,7 +49,8 @@ def get_openstack_sig_project():
 #             'x86_64': 'fail reason',
 #             'aarch64': 'fail reason'
 #         }
-#     }
+#     },
+#     'branch_name': 'Success'
 # }
 def check_status():
     white_list = get_openstack_sig_project()
@@ -66,11 +68,14 @@ def check_status():
                 package_name = package['@package']
                 package_status = package['@code']
                 if ('oepkg' in branch or package_name in white_list) and package_status in ['unresolvable', 'failed', 'broken']:
-                    if not sub_res.get(package_name):
-                        sub_res[package_name] = {}
-                    sub_res[package_name][arch] = package.get('details', 'build failed')
+                    project_key = PROJECT_MARKDOWN_FORMAT % {'project': package_name, 'url': OBS_PROJECT_URL % {'branch': branch, 'project': package_name}}
+                    if not sub_res.get(project_key):
+                        sub_res[project_key] = {}
+                    sub_res[project_key][arch] = package.get('details', 'build failed')
         if sub_res:
             result[branch] = sub_res
+        else:
+            result[branch] = 'Success'
     return result
 
 
@@ -133,6 +138,9 @@ def format_content(input_dict):
         for branch, project_info in input_dict.items():
             output += '## %s\n' % branch
             output += '    \n'
+            if isinstance(project_info, str):
+                output += '%s\n' % project_info
+                continue
             for project_name, status in project_info.items():
                 output += '    %s:\n' % project_name
                 if status.get('x86_64'):
@@ -150,6 +158,9 @@ def main():
     result_str = format_content(result)
     # try:
     #     create_or_update_issue(result_str)
+#     with open('./result.md', 'w') as output:
+#         output.write(result_str)
+    import markdown
     with open('result.html', 'w') as f:
         html = markdown.markdown(result_str)
         f.write(html)
