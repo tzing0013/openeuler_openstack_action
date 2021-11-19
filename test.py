@@ -74,7 +74,7 @@ def check_status():
         if sub_res:
             result[branch] = sub_res
         else:
-            result[bracnh] = 'Success'
+            result[branch] = 'Success'
     return result
 
 
