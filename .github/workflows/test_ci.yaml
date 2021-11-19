@@ -45,10 +45,10 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          body: OpenStack OBS每日构建检查
+          html_body: file://result.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
-          # Optional attachments:
-          attachments: result.md
+#           # Optional attachments:
+#           attachments: result.md
           # Optional priority: 'high', 'normal' (default) or 'low'
           priority: normal
