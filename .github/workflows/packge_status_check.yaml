@@ -3,7 +3,8 @@ name: Check OBS Build
 on:
   schedule:
     - cron: '0 0 * * 1-5'
-
+  issue_comment:
+    types: [created]
 jobs:
   package_status_check:
     name: Check package build status on OBS
@@ -20,13 +21,22 @@ jobs:
           pip install pyyaml
           pip install xmltodict
           pip install markdown
-      - name: Run the script
+      - name: Run the official script
+        if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
           python3 ./package_status.py
+      - name: Run the test script
+        if: ${{ contains(github.event.comment.body, 'recheck_test') }}
+        run: |
+          export OBS_USER_NAME=${{ secrets.obs_user_name }}
+          export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
+          export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
+          python3 ./test.py
       - name: Send email
+        if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
           # Required mail server address:
@@ -49,7 +59,31 @@ jobs:
           html_body: file://result.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
-#           # Optional attachments:
-#           attachments: result.md
+          # Optional priority: 'high', 'normal' (default) or 'low'
+          priority: normal
+      - name: Send email
+        if: ${{ contains(github.event.comment.body, 'recheck_test') }}
+        uses: dawidd6/action-send-mail@v3.6.0
+        with:
+          # Required mail server address:
+          server_address: smtp.qq.com
+          # Required mail server port:
+          server_port: 465
+          # Optional (recommended): mail server username:
+          username: ${{secrets.MAIL_USERNAME}}
+          # Optional (recommended) mail server password:
+          password: ${{secrets.MAIL_PASSWORD}}
+          # Required mail subject:
+          subject: OpenStack OBS Daily Check
+          # Required recipients' addresses:
+          to: wangxiyuan@huawei.com
+          # Required sender full name (address can be skipped):
+          from: OpenStack CI Boot # <user@example.com>
+          # Optional whether this connection use TLS (default is true if server_port is 465)
+          secure: true
+          # Optional plain body:
+          html_body: file://result.html
+          # Optional unsigned/invalid certificates allowance:
+          ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'
           priority: normal
