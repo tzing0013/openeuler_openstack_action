@@ -7,6 +7,7 @@ on:
 jobs:
   package_status_check:
     name: Check package build status on OBS
+    if: ${{ contains(github.event.comment.body, 'recheck') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
