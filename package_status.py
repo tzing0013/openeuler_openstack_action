@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 
+import markdown
 import requests
 import xmltodict
 import yaml
@@ -168,7 +169,6 @@ def main():
     #     create_or_update_issue(result_str)
 #     with open('./result.md', 'w') as output:
 #         output.write(result_str)
-    import markdown
     with open('result.html', 'w') as f:
         html = markdown.markdown(result_str)
         f.write(html)
