@@ -21,21 +21,14 @@ jobs:
           pip install pyyaml
           pip install xmltodict
           pip install markdown
-      - name: Run the official script
-        if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
+      - name: Run the script
+        if: ${{ contains(github.event.comment.body, 'recheck_official') || ${{ contains(github.event.comment.body, 'recheck_test') }} || github.event_name == 'schedule' }}
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
           python3 ./package_status.py
-      - name: Run the test script
-        if: ${{ contains(github.event.comment.body, 'recheck_test') }}
-        run: |
-          export OBS_USER_NAME=${{ secrets.obs_user_name }}
-          export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
-          export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
-          python3 ./test.py
-      - name: Send email
+      - name: Send email to SIG
         if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
@@ -61,7 +54,7 @@ jobs:
           ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'
           priority: normal
-      - name: Send email
+      - name: Send email for Debug
         if: ${{ contains(github.event.comment.body, 'recheck_test') }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
