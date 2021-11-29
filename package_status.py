@@ -53,7 +53,8 @@ def get_openstack_sig_project():
 #             'aarch64': 'fail reason'
 #         }
 #     },
-#     'branch_name': 'Success'
+#     'branch_name': 'Success',
+#     'branch_name': 'Unknown',
 # }
 def check_status():
     white_list = get_openstack_sig_project()
@@ -65,6 +66,9 @@ def check_status():
         res = branch_session.get(OBS_PACKAGE_BUILD_RESULT_URL % {'branch': branch}, verify=False)
         obs_result = xmltodict.parse(res.content.decode())['resultlist']['result']
         for each_arch in obs_result:
+            if each_arch['@state'] == 'unknown':
+                result[branch] = 'Unknown'
+                break
             arch = each_arch['@arch']
             arch_result = each_arch['status']
             for package in arch_result:
@@ -75,10 +79,11 @@ def check_status():
                     if not sub_res.get(project_key):
                         sub_res[project_key] = {}
                     sub_res[project_key][arch] = package.get('details', 'build failed')
-        if sub_res:
-            result[branch] = sub_res
         else:
-            result[branch] = 'Success'
+            if sub_res:
+                result[branch] = sub_res
+            else:
+                result[branch] = 'Success'
     return result
 
 
