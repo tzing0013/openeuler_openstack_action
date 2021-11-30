@@ -22,7 +22,7 @@ jobs:
           pip install xmltodict
           pip install markdown
       - name: Run the script
-        if: ${{ contains(github.event.comment.body, 'recheck_official') || ${{ contains(github.event.comment.body, 'recheck_test') }} || github.event_name == 'schedule' }}
+        if: ${{ contains(github.event.comment.body, 'recheck_official') || {{ contains(github.event.comment.body, 'recheck_test') }} || github.event_name == 'schedule' }}
         run: |
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
