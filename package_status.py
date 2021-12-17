@@ -150,6 +150,7 @@ def format_content(input_dict):
             if isinstance(project_info, str):
                 output += '%s\n' % project_info
                 continue
+            output += '??? note "Detail"'
             for project_name, status in project_info.items():
                 output += '    %s:\n' % project_name
                 if status.get('x86_64'):
@@ -170,7 +171,7 @@ def main():
 #     with open('./result.md', 'w') as output:
 #         output.write(result_str)
     with open('result.html', 'w') as f:
-        html = markdown.markdown(result_str)
+        html = markdown.markdown(result_str, extensions=['pymdownx.details'])
         f.write(html)
 
 main()
