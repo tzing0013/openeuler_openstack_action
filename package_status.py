@@ -150,7 +150,7 @@ def format_content(input_dict):
             if isinstance(project_info, str):
                 output += '%s\n' % project_info
                 continue
-            output += '??? note "Detail"'
+            output += '??? note "Detail"\n'
             for project_name, status in project_info.items():
                 output += '    %s:\n' % project_name
                 if status.get('x86_64'):
