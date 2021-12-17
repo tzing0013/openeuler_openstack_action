@@ -17,10 +17,7 @@ jobs:
       - name: Install requirement
         run: |
           sudo apt install python3-pip
-          pip install requests
-          pip install pyyaml
-          pip install xmltodict
-          pip install markdown
+          pip install requests pyyaml xmltodict markdown pymdown-extensions
       - name: Run the script
         if: ${{ contains(github.event.comment.body, 'recheck_official') || contains(github.event.comment.body, 'recheck_test') || github.event_name == 'schedule' }}
         run: |
