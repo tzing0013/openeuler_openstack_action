@@ -146,17 +146,19 @@ def format_content(input_dict):
     if input_dict:
         for branch, project_info in input_dict.items():
             output += '## %s\n' % branch
-            output += '    \n'
+            output += '\n'
             if isinstance(project_info, str):
                 output += '%s\n' % project_info
                 continue
             output += '??? note "Detail"\n'
             for project_name, status in project_info.items():
                 output += '    %s:\n' % project_name
+                output += '\n'
                 if status.get('x86_64'):
                     output += '        x86_64: %s\n' % status['x86_64']
                 if status.get('aarch64'):
                     output += '        aarch64: %s\n' % status['aarch64']
+            output += '\n'
     else:
         output += 'All package build success.'
 
