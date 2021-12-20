@@ -46,9 +46,8 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          #html_body: file://result.html
-          body: OBS Daily Check, see the attached file for the detail.
-          attachments: result.html
+          html_body: file://result_body.html
+          attachments: result_attach.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'
@@ -74,9 +73,8 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          #html_body: file://result.html
-          body: OBS Daily Check, see the attached file for the detail.
-          attachments: result.html
+          html_body: file://result_body.html
+          attachments: result_attach.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'

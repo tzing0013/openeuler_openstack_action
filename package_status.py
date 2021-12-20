@@ -22,6 +22,7 @@ BRANCHS = [
     'openEuler:20.03:LTS:SP3:Epol',
     'openEuler:21.03:Epol',
     'openEuler:21.09:Epol',
+    #'openEuler:22.03:LTS:Next:Epol'
     'openEuler:Epol',
 ]
 
@@ -100,80 +101,79 @@ def get_obs_issue():
         return None
 
 
-def update_issue(issue_number, result_str):
-    headers = {
-        'Content-Type': 'application/json;charset=UTF-8',
-    }
-    body = {
-        "access_token": GITEE_USER_TOKEN,
-        "repo": "openstack",
-        "body": result_str,
-    }
-    response = requests.patch(GITEE_ISSUE_UPDATE_URL % issue_number, headers=headers, params=body)
-    if response.status_code != 200:
-        raise Exception("Failed update gitee issue")
+# def update_issue(issue_number, result_str):
+#     headers = {
+#         'Content-Type': 'application/json;charset=UTF-8',
+#     }
+#     body = {
+#         "access_token": GITEE_USER_TOKEN,
+#         "repo": "openstack",
+#         "body": result_str,
+#     }
+#     response = requests.patch(GITEE_ISSUE_UPDATE_URL % issue_number, headers=headers, params=body)
+#     if response.status_code != 200:
+#         raise Exception("Failed update gitee issue")
 
-def create_issue(result_str):
-    headers = {
-        'Content-Type': 'application/json;charset=UTF-8',
-    }
-    body = {
-        "access_token": GITEE_USER_TOKEN,
-        "repo": "openstack",
-        "title": "[CI] OBS Build Failed",
-        "body": result_str,
-        "labels": "kind/obs-failed",
-        "assignee": "huangtianhua",
-        "collaborators": "xiyuanwang"
-    }
-    response = requests.post(GITEE_ISSUE_CREATE_URL, headers=headers, params=body)
-    if response.status_code != 201:
-        raise Exception("Failed create gitee issue")
+# def create_issue(result_str):
+#     headers = {
+#         'Content-Type': 'application/json;charset=UTF-8',
+#     }
+#     body = {
+#         "access_token": GITEE_USER_TOKEN,
+#         "repo": "openstack",
+#         "title": "[CI] OBS Build Failed",
+#         "body": result_str,
+#         "labels": "kind/obs-failed",
+#         "assignee": "huangtianhua",
+#         "collaborators": "xiyuanwang"
+#     }
+#     response = requests.post(GITEE_ISSUE_CREATE_URL, headers=headers, params=body)
+#     if response.status_code != 201:
+#         raise Exception("Failed create gitee issue")
 
 
-def create_or_update_issue(result_str):
-    issue_number = get_obs_issue()
-    if issue_number:
-        update_issue(issue_number, result_str)
-    else:
-        create_issue(result_str)
+# def create_or_update_issue(result_str):
+#     issue_number = get_obs_issue()
+#     if issue_number:
+#         update_issue(issue_number, result_str)
+#     else:
+#         create_issue(result_str)
 
 
 def format_content(input_dict):
-    output = ""
+    output_attach = ""
+    output_body = ""
     today = datetime.datetime.now()
-    output += '## check date: %s-%s-%s\n' % (today.year, today.month, today.day)
+    output_body += '# check date: %s-%s-%s\n\n' % (today.year, today.month, today.day)
+    output_body += 'See the attached file for the failed branch\n\n'
     if input_dict:
         for branch, project_info in input_dict.items():
-            output += '## %s\n' % branch
-            output += '\n'
             if isinstance(project_info, str):
-                output += '%s\n' % project_info
+                output_body += '## %s\n\n' % branch
+                output_body += '%s\n' % project_info
                 continue
-            output += '??? note "Detail"\n'
+            output_attach += '## %s\n\n' % branch
+            output_attach += '??? note "Detail"\n'
             for project_name, status in project_info.items():
-                output += '    %s:\n' % project_name
-                output += '\n'
+                output_attach += '    %s:\n\n' % project_name
                 if status.get('x86_64'):
-                    output += '        x86_64: %s\n' % status['x86_64']
+                    output_attach += '        x86_64: %s\n' % status['x86_64']
                 if status.get('aarch64'):
-                    output += '        aarch64: %s\n' % status['aarch64']
-            output += '\n'
+                    output_attach += '        aarch64: %s\n' % status['aarch64']
+            output_attach += '\n'
     else:
-        output += 'All package build success.'
+        output_body += 'All package build success.'
 
-    return output
+    return output_attach, output_body
 
 
 def main():
     result = check_status()
-    result_str = format_content(result)
-    # try:
-    #     create_or_update_issue(result_str)
-#     with open('./result.md', 'w') as output:
-#         output.write(result_str)
-    with open('result.html', 'w') as f:
-        html = markdown.markdown(result_str, extensions=['pymdownx.details'])
+    result_str_attach, result_str_body= format_content(result)
+    with open('result_attach.html', 'w') as f:
+        html = markdown.markdown(result_str_attach, extensions=['pymdownx.details'])
         f.write(html)
-
+    with open('result_body.html', 'w') as f:
+        html = markdown.markdown(result_str_body, extensions=['pymdownx.details'])
+        f.write(html)
 main()
