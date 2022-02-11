@@ -73,7 +73,7 @@ def check_status():
             for package in arch_result:
                 package_name = package['@package']
                 package_status = package['@code']
-                if ('oepkg' in branch or package_name in white_list) and package_status in ['unresolvable', 'failed', 'broken']:
+                if ('oepkg' in branch or 'Multi' in branch or package_name in white_list) and package_status in ['unresolvable', 'failed', 'broken']:
                     project_key = PROJECT_MARKDOWN_FORMAT % {'project': package_name, 'url': OBS_PROJECT_URL % {'branch': branch, 'project': package_name}}
                     if not sub_res.get(project_key):
                         sub_res[project_key] = {}
