@@ -10,8 +10,8 @@ jobs:
     name: Check package build status on OBS
     runs-on: ubuntu-latest
     steps:
-#       - name: Checkout repo
-#         uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
       - name: Install python3
         uses: actions/setup-python@v2
       - name: Install requirement
@@ -22,14 +22,16 @@ jobs:
         if: ${{ contains(github.event.comment.body, 'recheck_official') || contains(github.event.comment.body, 'recheck_test') || github.event_name == 'schedule' }}
         run: |
           git clone https://gitee.com/openeuler/openstack
-          cd openstack/tools/oos
+          pushd openstack/tools/oos
           pip install -r requirement.txt
           pip install -e .
-          cd scripts
+          popd
+          pushd scripts
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
           python3 ./check_obs_status.py html
+          popd
           pwd
       - name: Send email to SIG
         if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
@@ -79,8 +81,8 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          html_body: file://home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/result_body.html
-          attachments: /home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/result_attach.html
+          html_body: file://openstack/tools/oos/scripts/result_body.html
+          attachments: openstack/tools/oos/scripts/result_attach.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'
