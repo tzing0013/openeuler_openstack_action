@@ -54,8 +54,8 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          html_body: file://home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/result_body.html
-          attachments: /home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/result_attach.html
+          html_body: file://openstack/tools/oos/scripts/result_body.html
+          attachments: openstack/tools/oos/scripts/result_attach.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'
