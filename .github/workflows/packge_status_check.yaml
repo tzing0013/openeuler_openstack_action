@@ -30,6 +30,7 @@ jobs:
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
           python3 ./check_obs_status.py html
+          pwd
       - name: Send email to SIG
         if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
         uses: dawidd6/action-send-mail@v3.6.0
@@ -51,8 +52,8 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          html_body: file://result_body.html
-          attachments: result_attach.html
+          html_body: file://openstack/tools/oos/scripts/result_body.html
+          attachments: /openstack/tools/oos/scripts/result_attach.html
           # Optional unsigned/invalid certificates allowance:
           ignore_cert: true
           # Optional priority: 'high', 'normal' (default) or 'low'
