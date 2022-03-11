@@ -10,21 +10,26 @@ jobs:
     name: Check package build status on OBS
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
+#       - name: Checkout repo
+#         uses: actions/checkout@v2
       - name: Install python3
         uses: actions/setup-python@v2
       - name: Install requirement
         run: |
-          sudo apt install python3-pip
+          sudo apt install python3-pip git
           pip install requests pyyaml xmltodict markdown pymdown-extensions
       - name: Run the script
         if: ${{ contains(github.event.comment.body, 'recheck_official') || contains(github.event.comment.body, 'recheck_test') || github.event_name == 'schedule' }}
         run: |
+          git clone https://gitee.com/openeuler/openstack
+          cd openstack/tools/oos
+          pip install -r requirement.txt
+          pip install -e .
+          cd scripts
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
-          python3 ./package_status.py
+          ./check_obs_status.py html
       - name: Send email to SIG
         if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
         uses: dawidd6/action-send-mail@v3.6.0
