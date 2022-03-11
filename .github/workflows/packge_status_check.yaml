@@ -26,7 +26,7 @@ jobs:
           pip install -r requirement.txt
           pip install -e .
           popd
-          pushd scripts
+          pushd openstack/tools/oos/scripts
           export OBS_USER_NAME=${{ secrets.obs_user_name }}
           export OBS_USER_PASSWORD=${{ secrets.obs_user_password }}
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
