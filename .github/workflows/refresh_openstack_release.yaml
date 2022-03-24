@@ -20,6 +20,7 @@ jobs:
           sudo apt install python3-pip git
       - name: Prepare oos and run the script
         run: |
+          set -ex
           # clone openstack
           git clone https://gitee.com/openstack-sig-bot/openstack
           
