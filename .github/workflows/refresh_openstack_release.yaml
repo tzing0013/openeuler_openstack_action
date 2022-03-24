@@ -36,6 +36,8 @@ jobs:
           cat << EOF >>  ~/.git-credentials
           https://openstack-sig-bot:${{ secrets.gitee_password }}@gitee.com
           EOF
+          cat ~/.gitconfig
+          cat ~/.git-credentials
           git remote add upstream https://gitee.com/openeuler/openstack
           git remote update
           git merge upstream/master
