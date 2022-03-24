@@ -8,6 +8,7 @@ on:
 jobs:
   package_status_check:
     name: Check package build status on OBS
+    if: ${{ contains(github.event.comment.body, 'recheck_obs_official') || contains(github.event.comment.body, 'recheck_obs_test') || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -17,9 +18,7 @@ jobs:
       - name: Install requirement
         run: |
           sudo apt install python3-pip git
-          pip install requests pyyaml xmltodict markdown pymdown-extensions
       - name: Run the script
-        if: ${{ contains(github.event.comment.body, 'recheck_official') || contains(github.event.comment.body, 'recheck_test') || github.event_name == 'schedule' }}
         run: |
           git clone https://gitee.com/openeuler/openstack
           pushd openstack/tools/oos
@@ -34,7 +33,7 @@ jobs:
           popd
           pwd
       - name: Send email to SIG
-        if: ${{ contains(github.event.comment.body, 'recheck_official') || github.event_name == 'schedule' }}
+        if: ${{ contains(github.event.comment.body, 'recheck_obs_official') || github.event_name == 'schedule' }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
           # Required mail server address:
@@ -61,7 +60,7 @@ jobs:
           # Optional priority: 'high', 'normal' (default) or 'low'
           priority: normal
       - name: Send email for Debug
-        if: ${{ contains(github.event.comment.body, 'recheck_test') }}
+        if: ${{ contains(github.event.comment.body, 'recheck_obs_test') }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
           # Required mail server address:

@@ -1,0 +1,59 @@
+name: Refresh OpenStack release
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5'
+  issue_comment:
+    types: [created]
+jobs:
+  openstack_release_refresh:
+    name: Refresh OpenStack release
+    if: ${{ contains(github.event.comment.body, 'recheck_release') || github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install python3
+        uses: actions/setup-python@v2
+      - name: Install requirement
+        run: |
+          sudo apt install python3-pip git
+      - name: Prepare oos and run the script
+        run: |
+          # clone openstack
+          git clone https://gitee.com/openstack-sig-bot/openstack
+          
+          # update config and code
+          pushd openstack
+          cat << EOF >> ~/.gitconfig
+          [user]
+          email = wxy2933@163.com
+          name = openstack-sig-bot
+          [credential]
+          helper = store
+          EOF
+          cat << EOF >>  ~/.git-credentials
+          https://openstack-sig-bot:${{ secrets.gitee_password }}@gitee.com
+          EOF
+          git remote add upstream https://gitee.com/openeuler/openstack
+          git remote update
+          git merge upstream/master
+          git push
+          popd
+          # Install oos and run script
+          pushd openstack/tools/oos
+          pip install -r requirements.txt
+          pip install -e .
+          popd
+          pushd openstack/tools/oos/scripts
+          export GITEE_USER_TOKEN=${{ secrets.gitee_bot_token }}
+          python3 ./fetch_openstack_release_mapping.py html
+          ls
+          popd
+          pwd
+          ls
+
+          git checkout -b daily_update
+          git add .
+          git commit -a -m "Daily update"
+          git push origin HEAD -u
