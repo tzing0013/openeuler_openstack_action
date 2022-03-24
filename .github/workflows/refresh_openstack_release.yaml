@@ -23,7 +23,7 @@ jobs:
           set -ex
           # clone openstack
           git clone https://gitee.com/openstack-sig-bot/openstack
-          
+
           # update config and code
           pushd openstack
           git config user.name "openstack-sig-bot"
@@ -34,6 +34,7 @@ jobs:
           git merge upstream/master
           git push origin master -u
           popd
+
           # Install oos and run script
           pushd openstack/tools/oos
           pip install -r requirements.txt
@@ -42,10 +43,12 @@ jobs:
           pushd openstack/tools/oos/scripts
           python3 ./fetch_openstack_release_mapping.py
           mv openstack_release.yaml ../etc/
+
           # push the change
           git checkout -b daily_update
           git add .
-          git commit -a -m "Daily update"
+          git commit -a -m "Daily update - opentack release"
           git push origin HEAD -u
+
           # create pull request
-          curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update","head":"openstack-sig-bot:daily_update","base":"master","prune_source_branch":"true"}'
+          curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update - opentack release","head":"openstack-sig-bot:daily_update","base":"master","prune_source_branch":"true"}'
