@@ -1,4 +1,4 @@
-name: Refresh OpenStack release
+_name: Refresh src openEuler repo
 
 on:
   schedule:
@@ -7,8 +7,8 @@ on:
     types: [created]
 jobs:
   openstack_release_refresh:
-    name: Refresh OpenStack release
-    if: ${{ contains(github.event.comment.body, 'recheck_release') || github.event_name == 'schedule' }}
+    name: Refresh src openEuler repo
+    if: ${{ contains(github.event.comment.body, 'recheck_src_repo') || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -41,16 +41,17 @@ jobs:
           pip install -e .
           popd
           pushd openstack/tools/oos/scripts
-          python3 ./fetch_openstack_release_mapping.py
-          mv openstack_release.yaml ../etc/
+          export GITEE_USER_TOKEN=${{ secrets.gitee_bot_token }}
+          python3 ./fetch_src_openeuler_repo_name.py
+          mv openeuler_repo.yaml ../etc/
           result=`git diff`
           if [ -n "$result" ];then
             # push the change
             git checkout -b daily_update
             git add .
-            git commit -a -m "Daily update - opentack release"
+            git commit -a -m "Daily update - src openEuler repo"
             git push origin HEAD -u
 
             # create pull request
-            curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update - opentack release","head":"openstack-sig-bot:daily_update","base":"master","prune_source_branch":"true"}'
+            curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update - src openEuler repo","head":"openstack-sig-bot:daily_update","base":"master","prune_source_branch":"true"}'
           fi
