@@ -42,8 +42,10 @@ jobs:
           pushd openstack/tools/oos/scripts
           python3 ./fetch_openstack_release_mapping.py
           mv openstack_release.yaml ../etc/
-
+          # push the change
           git checkout -b daily_update
           git add .
           git commit -a -m "Daily update"
           git push origin HEAD -u
+          # create pull request
+          curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update","head":"openstack-sig-bot:daily_update","base":"master","prune_source_branch":"true"}'
