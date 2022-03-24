@@ -40,12 +40,8 @@ jobs:
           pip install -e .
           popd
           pushd openstack/tools/oos/scripts
-          export GITEE_USER_TOKEN=${{ secrets.gitee_bot_token }}
-          python3 ./fetch_openstack_release_mapping.py html
-          ls
-          popd
-          pwd
-          ls
+          python3 ./fetch_openstack_release_mapping.py
+          mv openstack_release.yaml ../etc/
 
           git checkout -b daily_update
           git add .
