@@ -8,7 +8,7 @@ on:
 jobs:
   openstack_release_refresh:
     name: Refresh src openEuler repo
-    if: ${{ contains(github.event.comment.body, 'recheck_src_repo') || github.event_name == 'schedule' }}
+    if: ${{ contains(github.event.comment.body, 'recheck_repo') || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
