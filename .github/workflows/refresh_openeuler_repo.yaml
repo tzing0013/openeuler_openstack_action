@@ -50,7 +50,7 @@ jobs:
             # push the change
             git checkout -b daily_update_src_openeuler_repo
             git add .
-            git commit -a -m "Daily update - src openEuler repo"
+            git commit -a -m "Daily update - openEuler repo"
             git push origin HEAD -u
 
             # create pull request
