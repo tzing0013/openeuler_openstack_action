@@ -1,4 +1,4 @@
-name: Refresh src openEuler repo
+name: Refresh openEuler repo
 
 on:
   schedule:
@@ -41,9 +41,10 @@ jobs:
           pip install -e .
           popd
           pushd openstack/tools/oos/scripts
-          export GITEE_USER_TOKEN=${{ secrets.gitee_bot_token }}
-          python3 ./fetch_src_openeuler_repo_name.py
+          git clone https://gitee.com/openeuler/community
+          python3 ./fetch_openeuler_repo_name.py local
           mv openeuler_repo.yaml ../etc/
+          rm -rf community
           result=`git diff`
           if [ -n "$result" ];then
             # push the change
