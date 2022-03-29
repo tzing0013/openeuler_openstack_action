@@ -42,7 +42,6 @@ jobs:
           popd
           pushd openstack/tools/oos/scripts
           git clone https://gitee.com/openeuler/community community
-          ls community/sig
           python3 ./fetch_openeuler_repo_name.py --path /home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/community local
           mv openeuler_repo.yaml ../etc/
           rm -rf community
