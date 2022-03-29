@@ -44,6 +44,8 @@ jobs:
           git clone https://gitee.com/openeuler/community community
           python3 ./fetch_openeuler_repo_name.py --path /home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/community local
           mv openeuler_repo.yaml ../etc/
+          python3 ./fetch_openeuler_repo_name.py --path /home/runner/work/openeuler_openstack_action/openeuler_openstack_action/openstack/tools/oos/scripts/community -sig sig-openstack local
+          mv openeuler_repo.yaml ../etc/openeuler_sig_repo.yaml
           rm -rf community
           result=`git diff`
           if [ -n "$result" ];then
