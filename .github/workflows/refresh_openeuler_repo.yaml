@@ -54,5 +54,5 @@ jobs:
             git push origin HEAD -u
 
             # create pull request
-            curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update - src openEuler repo","head":"openstack-sig-bot:daily_update_src_openeuler_repo","base":"master","prune_source_branch":"true"}'
+            curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update - openEuler repo","head":"openstack-sig-bot:daily_update_src_openeuler_repo","base":"master","prune_source_branch":"true"}'
           fi
