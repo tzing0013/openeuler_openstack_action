@@ -1,0 +1,83 @@
+name: Check OBS Build
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5'
+  issue_comment:
+    types: [created]
+jobs:
+  package_status_check:
+    name: Check package build status on OBS
+    if: ${{ contains(github.event.comment.body, 'recheck_ci_official') || contains(github.event.comment.body, 'recheck_ci_test') || github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install python3
+        uses: actions/setup-python@v2
+      - name: Install requirement
+        run: |
+          sudo apt install python3-pip git
+      - name: Run the script
+        run: |
+          git clone https://gitee.com/openeuler/openstack
+          pushd openstack/tools/oos
+          pip install -r requirements.txt
+          pip install -e .
+          popd
+          pushd openstack/tools/oos/scripts
+          python3 ./check_openstack_ci_status.py
+          popd
+          pwd
+      - name: Send email to SIG
+        if: ${{ contains(github.event.comment.body, 'recheck_ci_official') || github.event_name == 'schedule' }}
+        uses: dawidd6/action-send-mail@v3.6.0
+        with:
+          # Required mail server address:
+          server_address: smtp.qq.com
+          # Required mail server port:
+          server_port: 465
+          # Optional (recommended): mail server username:
+          username: ${{secrets.MAIL_USERNAME}}
+          # Optional (recommended) mail server password:
+          password: ${{secrets.MAIL_PASSWORD}}
+          # Required mail subject:
+          subject: OpenStack CI Daily Check
+          # Required recipients' addresses:
+          to: wangxiyuan@huawei.com,huangtianhua@huawei.com,lijiawei19@huawei.com
+          # Required sender full name (address can be skipped):
+          from: OpenStack CI Boot # <user@example.com>
+          # Optional whether this connection use TLS (default is true if server_port is 465)
+          secure: true
+          # Optional plain body:
+          html_body: file://openstack/tools/oos/scripts/result_body.html
+          # Optional unsigned/invalid certificates allowance:
+          ignore_cert: true
+          # Optional priority: 'high', 'normal' (default) or 'low'
+          priority: normal
+      - name: Send email for Debug
+        if: ${{ contains(github.event.comment.body, 'recheck_ci_test') }}
+        uses: dawidd6/action-send-mail@v3.6.0
+        with:
+          # Required mail server address:
+          server_address: smtp.qq.com
+          # Required mail server port:
+          server_port: 465
+          # Optional (recommended): mail server username:
+          username: ${{secrets.MAIL_USERNAME}}
+          # Optional (recommended) mail server password:
+          password: ${{secrets.MAIL_PASSWORD}}
+          # Required mail subject:
+          subject: OpenStack CI Daily Check
+          # Required recipients' addresses:
+          to: wangxiyuan@huawei.com
+          # Required sender full name (address can be skipped):
+          from: OpenStack CI Boot # <user@example.com>
+          # Optional whether this connection use TLS (default is true if server_port is 465)
+          secure: true
+          # Optional plain body:
+          html_body: file://openstack/tools/oos/scripts/result_body.html
+          # Optional unsigned/invalid certificates allowance:
+          ignore_cert: true
+          # Optional priority: 'high', 'normal' (default) or 'low'
+          priority: normal
