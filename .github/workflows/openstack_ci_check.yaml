@@ -1,4 +1,4 @@
-name: Check OBS Build
+name: Check OpenStack CI
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
     types: [created]
 jobs:
   package_status_check:
-    name: Check package build status on OBS
+    name: Check openstack ci status
     if: ${{ contains(github.event.comment.body, 'recheck_ci_official') || contains(github.event.comment.body, 'recheck_ci_test') || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     steps:
