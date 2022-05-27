@@ -39,7 +39,8 @@ jobs:
           mkdocs build
           mv site ../
           git checkout upstream/page
-          cp ../site .
+          rm -rf site
+          cp -r ../site .
           result=`git diff`
           if [ -n "$result" ];then
             # push the change
