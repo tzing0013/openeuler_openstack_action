@@ -1,0 +1,53 @@
+name: Refresh OpenStack SIG doc
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5'
+  issue_comment:
+    types: [created]
+jobs:
+  openstack_doc_refresh:
+    name: Refresh openEuler OpenStack SIG doc
+    if: ${{ contains(github.event.comment.body, 'recheck_doc') || github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install python3
+        uses: actions/setup-python@v2
+      - name: Install requirement
+        run: |
+          sudo apt install python3-pip git
+      - name: Prepare oos and run the script
+        run: |
+          set -ex
+          # clone openstack
+          git clone https://gitee.com/openstack-sig-bot/openstack
+
+          # update config and code
+          pushd openstack
+          git config user.name "openstack-sig-bot"
+          git config user.email "wxy2933@163.com"
+          git remote set-url origin https://openstack-sig-bot:${{ secrets.gitee_password }}@gitee.com/openstack-sig-bot/openstack.git
+          git remote add upstream https://gitee.com/openeuler/openstack
+          git remote update
+          popd
+
+          # Install mkdocs and build page
+          pip install mkdocs
+          pushd openstack
+          mkdocs build
+          mv site ../
+          git checkout upstream/page
+          cp ../site .
+          result=`git diff`
+          if [ -n "$result" ];then
+            # push the change
+            git checkout -b page_update
+            git add .
+            git commit -a -m "Daily update - OpenStack SIG doc"
+            git push origin HEAD -u
+
+            # create pull request
+            curl -X POST --header 'Content-Type: application/json;charset=UTF-8' 'https://gitee.com/api/v5/repos/openeuler/openstack/pulls' -d '{"access_token":"${{ secrets.gitee_bot_token }}","title":"Daily update - openEuler repo","head":"openstack-sig-bot:page_update","base":"master","prune_source_branch":"true"}'
+          fi
