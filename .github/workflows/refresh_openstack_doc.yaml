@@ -18,7 +18,7 @@ jobs:
       - name: Install requirement
         run: |
           sudo apt install python3-pip git
-      - name: Prepare oos and run the script
+      - name: Prepare mkdocs and build page
         run: |
           set -ex
           # clone openstack
@@ -34,7 +34,7 @@ jobs:
           popd
 
           # Install mkdocs and build page
-          pip install mkdocs
+          pip install mkdocs pymdown-extensions
           pushd openstack
           mkdocs build
           mv site ../
