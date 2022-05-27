@@ -49,7 +49,7 @@ jobs:
           # Required recipients' addresses:
           to: wangxiyuan@huawei.com,huangtianhua@huawei.com,lijiawei19@huawei.com
           # Required sender full name (address can be skipped):
-          from: OpenStack CI Boot # <user@example.com>
+          from: OpenStack CI Bot # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
@@ -76,7 +76,7 @@ jobs:
           # Required recipients' addresses:
           to: wangxiyuan@huawei.com
           # Required sender full name (address can be skipped):
-          from: OpenStack CI Boot # <user@example.com>
+          from: OpenStack CI Bot # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
