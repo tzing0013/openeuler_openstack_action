@@ -41,7 +41,7 @@ jobs:
           git checkout upstream/page
           rm -rf site
           cp -r ../site .
-          result=`git diff`
+          result=`git diff -- . ':(exclude)site/index.html' ':(exclude)site/sitemap.xml' ':(exclude)site/sitemap.xml.gz'`
           if [ -n "$result" ];then
             # push the change
             git checkout -b page_update
