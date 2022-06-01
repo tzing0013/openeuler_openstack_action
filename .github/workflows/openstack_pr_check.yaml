@@ -27,7 +27,7 @@ jobs:
           popd
           pushd openstack/tools/oos/scripts
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
-          python3 ./check_openstack_sig_pr.py
+          sudo python3 ./check_openstack_sig_pr.py
           popd
       - name: Send email to SIG
         if: ${{ contains(github.event.comment.body, 'recheck_pr_official') || github.event_name == 'schedule' }}
