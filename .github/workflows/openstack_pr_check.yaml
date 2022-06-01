@@ -1,4 +1,4 @@
-name: Check OpenStack CI
+name: Check OpenStack PR
 
 on:
   schedule:
@@ -7,8 +7,8 @@ on:
     types: [created]
 jobs:
   package_status_check:
-    name: Check openstack ci status
-    if: ${{ contains(github.event.comment.body, 'recheck_ci_official') || contains(github.event.comment.body, 'recheck_ci_test') || github.event_name == 'schedule' }}
+    name: Check openstack pr list
+    if: ${{ contains(github.event.comment.body, 'recheck_pr_official') || contains(github.event.comment.body, 'recheck_pr_test') || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -26,10 +26,11 @@ jobs:
           pip install -e .
           popd
           pushd openstack/tools/oos/scripts
-          python3 ./check_openstack_ci_status.py
+          export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
+          python3 ./check_openstack_sig_pr.py
           popd
       - name: Send email to SIG
-        if: ${{ contains(github.event.comment.body, 'recheck_ci_official') || github.event_name == 'schedule' }}
+        if: ${{ contains(github.event.comment.body, 'recheck_pr_official') || github.event_name == 'schedule' }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
           # Required mail server address:
@@ -41,9 +42,9 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
-          subject: OpenStack CI Daily Check
+          subject: OpenStack PR Daily Fetch
           # Required recipients' addresses:
-          to: wangxiyuan@huawei.com,huangtianhua@huawei.com,lijiawei19@huawei.com
+          to: wangxiyuan@huawei.com,huangtianhua@huawei.com,zh.f@outlook.com,hanguangyu@uniontech.com,zhangy1317@chinaunicom.cn
           # Required sender full name (address can be skipped):
           from: OpenStack CI Bot # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
@@ -55,7 +56,7 @@ jobs:
           # Optional priority: 'high', 'normal' (default) or 'low'
           priority: normal
       - name: Send email for Debug
-        if: ${{ contains(github.event.comment.body, 'recheck_ci_test') }}
+        if: ${{ contains(github.event.comment.body, 'recheck_pr_test') }}
         uses: dawidd6/action-send-mail@v3.6.0
         with:
           # Required mail server address:
@@ -67,7 +68,7 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
-          subject: OpenStack CI Daily Check
+          subject: OpenStack PR Daily Fetch
           # Required recipients' addresses:
           to: wangxiyuan@huawei.com
           # Required sender full name (address can be skipped):
