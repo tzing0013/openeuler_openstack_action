@@ -25,6 +25,7 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
           cd scripts
+          cp ../../../../check_openstack_sig_pr.py .
           export GITEE_USER_TOKEN=${{ secrets.gitee_user_token }}
           python3 ./check_openstack_sig_pr.py
       - name: Send email to SIG
