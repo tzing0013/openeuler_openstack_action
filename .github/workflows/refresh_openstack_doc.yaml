@@ -31,6 +31,8 @@ jobs:
           git remote set-url origin https://openstack-sig-bot:${{ secrets.gitee_password }}@gitee.com/openstack-sig-bot/openstack.git
           git remote add upstream https://gitee.com/openeuler/openstack
           git remote update
+          git merge upstream/master
+          git push origin master -u
           popd
 
           # Install mkdocs and build page
