@@ -36,7 +36,7 @@ jobs:
           popd
 
           # Install mkdocs and build page
-          pip install mkdocs pymdown-extensions
+          pip install mkdocs[i18n] pymdown-extensions
           pushd openstack
           mkdocs build
           mv site ../
