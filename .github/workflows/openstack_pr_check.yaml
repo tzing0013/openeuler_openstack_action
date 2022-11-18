@@ -42,7 +42,7 @@ jobs:
           # Required mail subject:
           subject: OpenStack PR Daily Fetch
           # Required recipients' addresses:
-          to: wangxiyuan@huawei.com,huangtianhua@huawei.com,zh.f@outlook.com,hanguangyu@uniontech.com,zhangy1317@chinaunicom.cn
+          to: wangxiyuan@huawei.com,zh.f@outlook.com,hanguangyu@uniontech.com,zhangy1317@chinaunicom.cn
           # Required sender full name (address can be skipped):
           from: OpenStack CI Bot # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
