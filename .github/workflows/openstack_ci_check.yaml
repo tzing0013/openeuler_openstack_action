@@ -43,7 +43,7 @@ jobs:
           # Required mail subject:
           subject: OpenStack CI Daily Check
           # Required recipients' addresses:
-          to: wangxiyuan@huawei.com, zhengting13@huawei.com
+          to: zhengting13@huawei.com
           # Required sender full name (address can be skipped):
           from: OpenStack CI Bot # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
