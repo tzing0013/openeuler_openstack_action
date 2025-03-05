@@ -9,7 +9,7 @@ on:
 jobs:
   openstack_doc_refresh:
     name: Refresh openEuler OpenStack SIG doc
-    if: ${{ contains(github.event.comment.body, 'recheck_doc') || github.event_name == 'schedule' }}
+    if: ${{ contains(github.event.comment.body, 'recheck_doc') || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
